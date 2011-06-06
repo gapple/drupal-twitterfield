@@ -1,1 +1,9 @@
+; $Id$
 name = Twitter Field Widget
+description = "A Field Formatter for text fields to display a Twitter Widget"
+
+; Core version (required)
+core = 7.x
+
+; Files
+files[] = twitter_field_widget.module
