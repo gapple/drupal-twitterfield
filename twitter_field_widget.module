@@ -1,0 +1,51 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ *   The Twitter Field Widget provides a custom field formatter to display
+ *   Twitter Id's as Twitter Profile Widgets.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function twitter_field_widget_theme() {
+  return array(
+    'twitter_field_widget' => array(
+      'variables' => array('twitter_id' => NULL),
+      'template' => 'twitter-field-widget',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function twitter_field_widget_field_formatter_info() {
+  return array(
+    'twitter_field_widget' => array(
+      'label' => t('Twitter Widget'), 
+      'field types' => array('text'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function twitter_field_widget_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  switch ($display['type']) {
+    case 'twitter_field_widget':
+      foreach ($items as $delta => $item) {
+        if ($item['safe_value']) {
+          $element[$delta] = array(
+            '#markup' => theme('twitter_field_widget', array('twitter_id' => $item['safe_value'])),
+          );
+        }
+      }
+      break;
+  }
+  return $element;
+}
