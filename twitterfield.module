@@ -1,0 +1,187 @@
+<?php
+
+/**
+ * @file
+ * TwitterField: Defines a CCK Twitter field type.
+ *
+ * Uses CCK text field type to store information.
+ */
+
+/**
+ * Implementation of hook_theme().
+ */
+function twitterfield_theme() {
+  return array(
+    'twitterfield_widget' => array(
+      'arguments' => array('element' => NULL),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_widget().
+ */
+function twitterfield_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+  $element = array(
+    '#title' => $field['widget']['label'],
+    '#type' => $field['widget']['type'],
+    '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
+  );
+
+  return $element;
+}
+
+/**
+ * Implementation of hook_widget_info().
+ */
+function twitterfield_widget_info() {
+  return array(
+    'twitterfield_widget' => array(
+      'label' => t('Twitter Item'),
+      'field types' => array('text'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+      'callbacks' => array('default value' => CONTENT_CALLBACK_DEFAULT),
+      'description' => t('Store Twitter Usernames, Hastags, or Searches'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_widget_settings().
+ */
+function twitterfield_widget_settings($op,  $widget) {
+  switch ($op) {
+    case 'form':
+      $form = array();
+
+      $form['allowed_types'] = array(
+        '#type' => 'checkboxes',
+        '#title' => t('Allowed Types'),
+        '#default_value' => isset($widget['allowed_types'])? $widget['allowed_types'] : array('username'),
+        '#options' => array(
+            'username' => t('Usernames (@username)'),
+            'hashtag' => t('Hashtags (#topic)'),
+            'search' => t('Searches'),
+          ),
+        '#description' => t('Select which types of expressions can be stored in this field.'),
+        '#element_validate' => array('_twitterfield_widget_settings_allowed_types_validate'),
+      );
+
+      $form['size'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Size of textfield'),
+        '#default_value' => isset($widget['size'])? $widget['size'] : 60,
+        '#element_validate' => array('_element_validate_integer_positive'),
+        '#required' => TRUE,
+      );
+
+      return $form;
+
+    case 'save':
+      return array('allowed_types', 'size');
+  }
+}
+
+function _twitterfield_widget_settings_allowed_types_validate($element, &$form_state) {
+  if (!array_filter($form_state['values']['allowed_types'])) {
+    form_set_error('allowed_types', t('You must select at least one type to allow.'));
+  }
+}
+
+/**
+ * Implementation of hook_elements().
+ */
+function twitterfield_elements() {
+  return array(
+    'twitterfield_widget' => array(
+      '#input' => TRUE,
+      '#process' => array('twitterfield_widget_process'),
+      '#element_validate' => array('twitterfield_widget_validate'),
+    ),
+  );
+}
+
+/**
+ * An element #process callback for the twitterfield_widget field type.
+ */
+function twitterfield_widget_process($element, $edit, &$form_state, $form) {
+  $field = $form['#field_info'][$element['#field_name']];
+
+  $element['value'] = array(
+    '#type' => 'textfield',
+    '#default_value' => isset($element['#value']['value']) ? $element['#value']['value'] : NULL,
+    '#size' => !empty($field['widget']['size']) ? $field['widget']['size'] : 60,
+    '#attributes' => array('class' => 'text'),
+    // The following values were set by the content module and need
+    // to be passed down to the nested element.
+    '#title' => $element['#title'],
+    '#description' => $element['#description'],
+    '#required' => $element['#required'],
+    '#field_name' => $element['#field_name'],
+    '#type_name' => $element['#type_name'],
+    '#delta' => $element['#delta'],
+    '#columns' => $element['#columns'],
+  );
+
+  $element['value']['#maxlength'] = !empty($field['max_length']) ? $field['max_length'] : NULL;
+
+  // Used so that hook_field('validate') knows where to flag an error.
+  $element['_error_element'] = array(
+    '#type' => 'value',
+    '#value' => implode('][', array_merge($element['#parents'], array('value'))),
+  );
+
+  return $element;
+}
+
+/**
+ * An element #validate callback for the twitterfield_widget field type.
+ */
+function twitterfield_widget_validate($element, &$form_state) {
+  $value  = $element['#value']['value'];
+  if (empty($value)) {
+    return;
+  }
+
+  $field = content_fields($element['#field_name'], $element['#type_name']);
+  $allowed_types = $field['widget']['allowed_types'];
+  $allowed_types_count = count(array_filter($allowed_types));
+
+  $error = '';
+
+  if ($allowed_types_count == 0) {
+    // We must be on the settings page, checking the default value,
+    // and the allowed types failed validation.
+    return;
+  }
+  elseif ($allowed_types_count == 1) {
+    if ($allowed_types['username'] && !preg_match('/^@[\w]+$/i', $value)) {
+      $error = t('Only Usernames are allowed, and must be prepended with "@".');
+    }
+    if ($allowed_types['hashtag'] && !preg_match('/^#[\w]+$/i', $value)) {
+      $error = t('Only Hashtags are allowed, and must be prepended with "#".');
+    }
+    if ($allowed_types['search'] && preg_match('/^[@#][\w]+$/i', $value)) {
+      $error = t('Only search strings are allowed.');
+    }
+  }
+  else {
+    if (!$allowed_types['username'] && preg_match('/^@[\w]+$/i', $value)) {
+      $error = t('Usernames are not allowed.');
+    }
+    if (!$allowed_types['hashtag'] && preg_match('/^#[\w]+$/i', $value)) {
+      $error = t('Hashtags are not allowed.');
+    }
+    if (!$allowed_types['search'] && (strstr($value, ' ') || !preg_match('/^[@#]/', $value))) {
+      $error = t('Search strings are not allowed.');
+    }
+  }
+
+  if ($error) {
+    form_error($element['value'], $error);
+  }
+}
+
+function theme_twitterfield_widget($element) {
+  return $element['#children'];
+}

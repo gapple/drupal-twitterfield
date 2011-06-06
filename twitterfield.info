@@ -1,0 +1,4 @@
+; $Id$
+name = Twitter Field
+description = CCK field widget to store Twitter usernames, hashtags, or searches
+core = 6.x
