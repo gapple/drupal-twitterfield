@@ -15,9 +15,15 @@ function twitterfield_theme() {
     'twitterfield_widget' => array(
       'arguments' => array('element' => NULL),
     ),
+    'twitterfield_formatter_twitter_link' => array(
+      'arguments' => array('element' => NULL),
+    ),
   );
 }
 
+/* ****************************************************************************
+ * Widget Functions
+ */
 /**
  * Implementation of hook_widget().
  */
@@ -184,4 +190,33 @@ function twitterfield_widget_validate($element, &$form_state) {
 
 function theme_twitterfield_widget($element) {
   return $element['#children'];
+}
+
+/* ****************************************************************************
+ * Formatter Functions
+ */
+/**
+ * Implementation of hook_field_formatter_info().
+ */
+function twitterfield_field_formatter_info() {
+  return array(
+    'twitter_link' => array(
+      'label' => t('Twitter Link'),
+      'field types' => array('text'),
+    ),
+    // TODO add formatter to display with Twitter Pull module
+  );
+}
+
+function theme_twitterfield_formatter_twitter_link($element) {
+  $value = $element['#item']['safe'];
+
+  if (preg_match('/^@[\w]+$/i', $value)) {
+    $url_part = substr($value, 1);
+  }
+  else {
+    $url_part = 'search?q=' . rawurlencode($value);
+  }
+
+  return '<a href="http://twitter.com/' . $url_part . '" class="twitterfield_twitter_link">' . $value . '</a>';
 }
