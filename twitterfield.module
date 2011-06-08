@@ -18,6 +18,13 @@ function twitterfield_theme() {
     'twitterfield_formatter_twitter_link' => array(
       'arguments' => array('element' => NULL),
     ),
+    'twitterfield_formatter_twitter_widget' => array(
+      'arguments' => array('element' => NULL),
+    ),
+    'twitter_widget' => array(
+      'arguments' => array('value' => NULL),
+      'template' => 'twitter-widget',
+    ),
   );
 }
 
@@ -204,6 +211,10 @@ function twitterfield_field_formatter_info() {
       'label' => t('Twitter Link'),
       'field types' => array('text'),
     ),
+    'twitter_widget' => array(
+      'label' => t('Twitter Widget'),
+      'field types' => array('text'),
+    ),
     // TODO add formatter to display with Twitter Pull module
   );
 }
@@ -219,4 +230,8 @@ function theme_twitterfield_formatter_twitter_link($element) {
   }
 
   return '<a href="http://twitter.com/' . $url_part . '" class="twitterfield_twitter_link">' . $value . '</a>';
+}
+
+function theme_twitterfield_formatter_twitter_widget($element) {
+  return theme('twitter_widget', $element['#item']['safe']);
 }
