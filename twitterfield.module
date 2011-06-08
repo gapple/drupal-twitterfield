@@ -237,8 +237,7 @@ function theme_twitterfield_formatter_twitter_link($element) {
     // hashtag or search string.
     $url_part = 'search?q=' . rawurlencode($value);
   }
-
-  return '<a href="http://twitter.com/' . $url_part . '" class="twitterfield_twitter_link">' . $value . '</a>';
+  return l($value, 'http://twitter.com/' . $url_part, array('attributes' => array('class' => 'twitterfield_twitter_link')));
 }
 
 function theme_twitterfield_formatter_twitter_widget($element) {
