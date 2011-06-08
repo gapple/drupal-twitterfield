@@ -1,7 +1,7 @@
 Description
 -----------
 This project implements a CCK widget and formatter for the Text field type
-to store Twitter usernames, hashtags, and/or search queries.
+to store Twitter usernames, lists, hashtags, and/or search queries.
 
 The widget validates inputed values according to the widget settings.
 

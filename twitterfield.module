@@ -54,7 +54,7 @@ function twitterfield_widget_info() {
       'field types' => array('text'),
       'multiple values' => CONTENT_HANDLE_CORE,
       'callbacks' => array('default value' => CONTENT_CALLBACK_DEFAULT),
-      'description' => t('Store Twitter Usernames, Hastags, or Searches'),
+      'description' => t('Store Twitter Usernames, Lists, Hastags, or Searches'),
     ),
   );
 }
@@ -73,6 +73,7 @@ function twitterfield_widget_settings($op,  $widget) {
         '#default_value' => isset($widget['allowed_types'])? $widget['allowed_types'] : array('username'),
         '#options' => array(
             'username' => t('Usernames (@username)'),
+            'list' => t('Lists (@username/list)'),
             'hashtag' => t('Hashtags (#topic)'),
             'search' => t('Searches'),
           ),
@@ -171,6 +172,9 @@ function twitterfield_widget_validate($element, &$form_state) {
     if ($allowed_types['username'] && !preg_match('/^@[\w]+$/i', $value)) {
       $error = t('Only Usernames are allowed, and must be prepended with "@".');
     }
+    if ($allowed_types['list'] && !preg_match('/^@[\w]+\/[\w]+$/i', $value)) {
+      $error = t('Only Lists are allowed, and must be in the format "@username/list".');
+    }
     if ($allowed_types['hashtag'] && !preg_match('/^#[\w]+$/i', $value)) {
       $error = t('Only Hashtags are allowed, and must be prepended with "#".');
     }
@@ -181,6 +185,9 @@ function twitterfield_widget_validate($element, &$form_state) {
   else {
     if (!$allowed_types['username'] && preg_match('/^@[\w]+$/i', $value)) {
       $error = t('Usernames are not allowed.');
+    }
+    if (!$allowed_types['list'] && preg_match('/^@[\w]+\/[\w]+$/i', $value)) {
+      $error = t('Lists are not allowed.');
     }
     if (!$allowed_types['hashtag'] && preg_match('/^#[\w]+$/i', $value)) {
       $error = t('Hashtags are not allowed.');
@@ -222,10 +229,12 @@ function twitterfield_field_formatter_info() {
 function theme_twitterfield_formatter_twitter_link($element) {
   $value = $element['#item']['safe'];
 
-  if (preg_match('/^@[\w]+$/i', $value)) {
+  if (preg_match('/^@[\w]+(\/[\w]+)?$/i', $value)) {
+    // username or list.
     $url_part = substr($value, 1);
   }
   else {
+    // hashtag or search string.
     $url_part = 'search?q=' . rawurlencode($value);
   }
 
