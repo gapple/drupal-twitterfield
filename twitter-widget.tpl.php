@@ -1,32 +1,47 @@
 <?php
-  if (!empty($value)) :
+/**
+ * @var $type
+ *  Allowed values are 'profile', 'list', and 'search'.
+ *
+ * @var $value
+ *  The value depends on the $type parameter.
+ *  - 'profile' or 'search': a string.  Search strings should be escaped to
+ *    be safe to insert within a javascript string variable.
+ *  - 'list': an array containing the user and list names.
+ *  Usernames for 'profile' and 'list' should not contain the preceding '@'.
+ *
+ * @var $title
+ *  (optional) Title for the widget.  This string should be escaped to
+ *  be safe to insert within a javascript string variable.
+ *
+ * @var $subject
+ *   (optional) Subject for the widget.  This string should be escaped to
+ *  be safe to insert within a javascript string variable.
+ */
 
-  $widget_type = 'search';
-  if (preg_match('/^@[\w]+$/', $value)) {
-    $widget_type = 'profile';
-    $widget_chain = ".setUser('" . substr($value, 1) . "')";
-  }
-  elseif (preg_match('/^@([\w]+)\/([\w]+)$/', $value, $matches)) {
-    $widget_type = 'list';
-    $widget_chain = ".setList('" . $matches[1] . "', '" . $matches[2] . "')";
-  }
+if ($type == 'profile') {
+  $widget_chain = ".setUser('" . $value . "')";
+}
+elseif ($type == 'list') {
+  $widget_chain = ".setList('" . $value[0] . "', '" . $value[1] . "')";
+}
 ?>
 
 <script src="http://widgets.twimg.com/j/2/widget.js"></script>
 <script>
 new TWTR.Widget({
   version: 2,
-  type: '<?php print $widget_type; ?>',
+  type: '<?php print $type; ?>',
 <?php
-    switch ($widget_type) {
-      case 'search':
-        print "  search: '" . addslashes($value) . "',\n";
-        // fall through to add subject.
-      case 'list':
-        print "  subject: '" . addslashes($value) . "',\n";
-        break;
-      default:
-        break;
+    if ($type == 'search') {
+      print "  search: '" . $value . "',\n";
+    }
+
+    if (!empty($title)) {
+      print "  title: '" . $title . "',\n";
+    }
+    if (!empty($subject)) {
+      print "  subject: '" . $subject . "',\n";
     }
 ?>
   rpp: 5,
@@ -55,4 +70,3 @@ new TWTR.Widget({
   }
 }).render()<?php print empty($widget_chain)? '' : $widget_chain; ?>.start();
 </script>
-<?php endif; ?>

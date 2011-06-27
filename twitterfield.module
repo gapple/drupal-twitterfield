@@ -22,7 +22,7 @@ function twitterfield_theme() {
       'arguments' => array('element' => NULL),
     ),
     'twitter_widget' => array(
-      'arguments' => array('value' => NULL),
+      'arguments' => array('type' => NULL, 'value' => NULL, 'title' => NULL, 'subject' => NULL),
       'template' => 'twitter-widget',
     ),
   );
@@ -241,5 +241,23 @@ function theme_twitterfield_formatter_twitter_link($element) {
 }
 
 function theme_twitterfield_formatter_twitter_widget($element) {
-  return theme('twitter_widget', $element['#item']['safe']);
+  $type = 'search';
+  $value = $element['#item']['safe'];
+  $title = NULL;
+  $subject = addslashes($value); // escape for javascript
+
+  if (preg_match('/^@[\w]+$/', $value)) {
+    $type = 'profile';
+    $value = substr($value, 1);
+  }
+  elseif (preg_match('/^@([\w]+)\/([\w]+)$/', $value, $matches)) {
+    $type = 'list';
+    $value = array($matches[1], $matches[2]);
+  }
+  else {
+    // search expressions need to be escaped for javascript
+    $value = addslashes($value);
+  }
+
+  return theme('twitter_widget', $type, $value, $title, $subject);
 }
