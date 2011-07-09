@@ -236,6 +236,8 @@ function twitterfield_field_formatter_info() {
 }
 
 function theme_twitterfield_formatter_twitter_link($element) {
+  if (empty($element['#item']['value'])) {return;}
+
   $value = $element['#item']['safe'];
 
   if (preg_match('/^@[\w]+(\/[\w]+)?$/i', $value)) {
@@ -250,6 +252,8 @@ function theme_twitterfield_formatter_twitter_link($element) {
 }
 
 function theme_twitterfield_formatter_twitter_widget($element) {
+  if (empty($element['#item']['value'])) {return;}
+
   $type = 'search';
   $value = $element['#item']['safe'];
   $title = NULL;
@@ -272,7 +276,7 @@ function theme_twitterfield_formatter_twitter_widget($element) {
 }
 
 function theme_twitterfield_formatter_twitter_pull($element) {
-  if (module_exists('twitter_pull')) {
+  if (!empty($element['#item']['value']) && module_exists('twitter_pull')) {
     return twitter_pull_render($element['#item']['safe'], $element['#item']['safe']);
   }
 }
