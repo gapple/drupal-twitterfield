@@ -1,5 +1,3 @@
 name = Twitter Field
 description = "A Field Formatter for text fields to display a Twitter Widget"
 core = 7.x
-
-files[] = twitterfield.module
