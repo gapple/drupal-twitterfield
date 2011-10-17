@@ -177,13 +177,13 @@ function twitterfield_widget_validate($element, &$form_state) {
     if ($allowed_types['username'] && !preg_match('/^@[\w]+$/i', $value)) {
       $error = t('Only Usernames are allowed, and must be prepended with "@".');
     }
-    if ($allowed_types['list'] && !preg_match('/^@[\w]+\/[\w]+$/i', $value)) {
+    elseif ($allowed_types['list'] && !preg_match('/^@[\w]+\/[\w]+$/i', $value)) {
       $error = t('Only Lists are allowed, and must be in the format "@username/list".');
     }
-    if ($allowed_types['hashtag'] && !preg_match('/^#[\w]+$/i', $value)) {
+    elseif ($allowed_types['hashtag'] && !preg_match('/^#[\w]+$/i', $value)) {
       $error = t('Only Hashtags are allowed, and must be prepended with "#".');
     }
-    if ($allowed_types['search'] && preg_match('/^[@#][\w]+$/i', $value)) {
+    elseif ($allowed_types['search'] && preg_match('/^[@#][\w]+$/i', $value)) {
       $error = t('Only search strings are allowed.');
     }
   }
@@ -191,13 +191,13 @@ function twitterfield_widget_validate($element, &$form_state) {
     if (!$allowed_types['username'] && preg_match('/^@[\w]+$/i', $value)) {
       $error = t('Usernames are not allowed.');
     }
-    if (!$allowed_types['list'] && preg_match('/^@[\w]+\/[\w]+$/i', $value)) {
+    elseif (!$allowed_types['list'] && preg_match('/^@[\w]+\/[\w]+$/i', $value)) {
       $error = t('Lists are not allowed.');
     }
-    if (!$allowed_types['hashtag'] && preg_match('/^#[\w]+$/i', $value)) {
+    elseif (!$allowed_types['hashtag'] && preg_match('/^#[\w]+$/i', $value)) {
       $error = t('Hashtags are not allowed.');
     }
-    if (!$allowed_types['search'] && (strstr($value, ' ') || !preg_match('/^[@#]/', $value))) {
+    elseif (!$allowed_types['search'] && (strpos($value, ' ') !== FALSE || !preg_match('/^[@#]/', $value))) {
       $error = t('Search strings are not allowed.');
     }
   }
