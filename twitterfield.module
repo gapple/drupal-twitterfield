@@ -1,10 +1,9 @@
 <?php
-
 /**
  * @file
- * TwitterField: Defines a CCK Twitter field type.
+ * TwitterField: Defines a CCK widget and display formatters for Twitter items.
  *
- * Uses CCK text field type to store information.
+ * The CCK text field type is used for storing information.
  */
 
 /**
@@ -99,6 +98,9 @@ function twitterfield_widget_settings($op,  $widget) {
   }
 }
 
+/**
+ * #element_validate function for widget settings form Allowed Types selection.
+ */
 function _twitterfield_widget_settings_allowed_types_validate($element, &$form_state) {
   if (!array_filter($form_state['values']['allowed_types'])) {
     form_set_error('allowed_types', t('You must select at least one type to allow.'));
@@ -152,7 +154,7 @@ function twitterfield_widget_process($element, $edit, &$form_state, $form) {
 }
 
 /**
- * An element #validate callback for the twitterfield_widget field type.
+ * An #element_validate callback for the twitterfield_widget field type.
  */
 function twitterfield_widget_validate($element, &$form_state) {
   $value  = $element['#value']['value'];
@@ -205,6 +207,9 @@ function twitterfield_widget_validate($element, &$form_state) {
   }
 }
 
+/**
+ * Theme function for twitterfield widget.
+ */
 function theme_twitterfield_widget($element) {
   return $element['#children'];
 }
@@ -235,6 +240,9 @@ function twitterfield_field_formatter_info() {
   return $values;
 }
 
+/**
+ * Theme function for twitter link display formatter.
+ */
 function theme_twitterfield_formatter_twitter_link($element) {
   if (empty($element['#item']['value'])) {return;}
 
@@ -251,13 +259,17 @@ function theme_twitterfield_formatter_twitter_link($element) {
   return l($value, 'http://twitter.com/' . $url_part, array('attributes' => array('class' => 'twitterfield_twitter_link')));
 }
 
+/**
+ * Theme function for twitter widget display formatter.
+ */
 function theme_twitterfield_formatter_twitter_widget($element) {
   if (empty($element['#item']['value'])) {return;}
 
   $type = 'search';
   $value = $element['#item']['safe'];
+  // Title and subject need to be escaped for insertion into javascript string.
   $title = NULL;
-  $subject = addslashes($value); // escape for javascript
+  $subject = addslashes($value);
 
   if (preg_match('/^@[\w]+$/', $value)) {
     $type = 'profile';
@@ -268,13 +280,16 @@ function theme_twitterfield_formatter_twitter_widget($element) {
     $value = array($matches[1], $matches[2]);
   }
   else {
-    // search expressions need to be escaped for javascript
+    // Search expressions need to be escaped for insertion in javascript string.
     $value = addslashes($value);
   }
 
   return theme('twitter_widget', $type, $value, $title, $subject);
 }
 
+/**
+ * Theme function for twitter_pull display formatter.
+ */
 function theme_twitterfield_formatter_twitter_pull($element) {
   if (!empty($element['#item']['value']) && module_exists('twitter_pull')) {
     return twitter_pull_render($element['#item']['safe'], $element['#item']['safe']);
