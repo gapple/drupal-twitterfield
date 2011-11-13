@@ -10,7 +10,7 @@
  */
 function twitterfield_theme() {
   return array(
-    'twitterfield_widget' => array(
+    'twitter_widget' => array(
       'variables' => array('twitter_id' => NULL),
       'template' => 'twitter-widget',
     ),
@@ -22,7 +22,7 @@ function twitterfield_theme() {
  */
 function twitterfield_field_formatter_info() {
   return array(
-    'twitterfield_widget' => array(
+    'twitter_widget' => array(
       'label' => t('Twitter Widget'),
       'field types' => array('text'),
     ),
@@ -35,11 +35,11 @@ function twitterfield_field_formatter_info() {
 function twitterfield_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
   switch ($display['type']) {
-    case 'twitterfield_widget':
+    case 'twitter_widget':
       foreach ($items as $delta => $item) {
         if ($item['safe_value']) {
           $element[$delta] = array(
-            '#markup' => theme('twitterfield_widget', array('twitter_id' => $item['safe_value'])),
+            '#markup' => theme('twitter_widget', array('twitter_id' => $item['safe_value'])),
           );
         }
       }
