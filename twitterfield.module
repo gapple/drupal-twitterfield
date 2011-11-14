@@ -160,6 +160,10 @@ function twitterfield_field_widget_error($element, $error, $form, &$form_state) 
  */
 function twitterfield_field_formatter_info() {
   return array(
+    'twitterfield_twitter_link' => array(
+      'label' => 'Twitter Link',
+      'field types' => array('text'),
+    ),
     'twitterfield_twitter_widget' => array(
       'label' => t('Twitter Widget'),
       'field types' => array('text'),
@@ -172,6 +176,25 @@ function twitterfield_field_formatter_info() {
 function twitterfield_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
   switch ($display['type']) {
+    case 'twitterfield_twitter_link':
+      foreach ($items as $delta => $item) {
+        if ($item['safe_value']) {
+          $value = $item['safe_value'];
+
+          if (_twitterfield_is_username($value) || _twitterfield_is_list($value)) {
+            $url_part = substr($value, 1);
+          }
+          else {
+            // hashtag or search string.
+            $url_part = 'search?q=' . rawurlencode($value);
+          }
+          $element[$delta] = array(
+            '#markup' => l($value, 'http://twitter.com/' . $url_part, array('attributes' => array('class' => 'twitterfield_twitter_link')))
+          );
+        }
+      }
+      break;
+
     case 'twitterfield_twitter_widget':
       foreach ($items as $delta => $item) {
         if ($item['safe_value']) {
