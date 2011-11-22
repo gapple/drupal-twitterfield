@@ -174,11 +174,61 @@ function twitterfield_field_formatter_info() {
     $value['twitterfield_twitter_pull'] = array(
       'label' => t('Twitter Pull'),
       'field types' => array('text'),
+      'settings' => array('items' => 5, 'title' => ''),
     );
   }
 
   return $value;
 }
+
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function twitterfield_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $element = array();
+
+  if ($display['type'] == 'twitterfield_twitter_pull') {
+    $element['items'] = array(
+      '#title' => t('Items to display'),
+      '#type' => 'textfield',
+      '#size' => 5,
+      '#default_value' => $settings['items'],
+      '#element_validate' => array('element_validate_integer_positive'),
+      '#required' => TRUE,
+    );
+    $element['title'] = array(
+      '#title' => t('Override Title'),
+      '#description' => t('Use %nonetoken to display no title, or leave blank to use the default title.', array('%nonetoken' => '<none>')),
+      '#type' => 'textfield',
+      '#size' => 20,
+      '#default_value' => $settings['title'],
+    );
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function twitterfield_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $summary = '';
+
+  if ($display['type'] == 'twitterfield_twitter_pull') {
+    $summary .= t('Items to display') . ': ' . $settings['items'] . '<br>';
+    $summary .= t('Title') . ': ' . (empty($settings['title']) ? '<em>default</em>' : check_plain($settings['title']));
+  }
+
+  return $summary;
+}
+
 /**
  * Implements hook_field_formatter_view().
  */
@@ -235,8 +285,17 @@ function twitterfield_field_formatter_view($entity_type, $entity, $field, $insta
     case 'twitterfield_twitter_pull':
       foreach ($items as $delta => $item) {
         if ($item['safe_value']) {
+          $title = $item['safe_value'];
+          if (!empty($display['settings']['title'])) {
+            if ($display['settings']['title'] == '<none>') {
+              $title = FALSE;
+            }
+            else {
+              $title = $display['settings']['title'];
+            }
+          }
           $element[$delta] = array(
-            '#markup' => twitter_pull_render($item['safe_value'], $item['safe_value']),
+            '#markup' => twitter_pull_render($item['safe_value'], $title, $display['settings']['items']),
           );
         }
       }
