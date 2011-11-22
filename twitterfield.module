@@ -159,7 +159,7 @@ function twitterfield_field_widget_error($element, $error, $form, &$form_state) 
  * Implements hook_field_formatter_info().
  */
 function twitterfield_field_formatter_info() {
-  return array(
+  $value = array(
     'twitterfield_twitter_link' => array(
       'label' => 'Twitter Link',
       'field types' => array('text'),
@@ -169,6 +169,15 @@ function twitterfield_field_formatter_info() {
       'field types' => array('text'),
     ),
   );
+
+  if (module_exists('twitter_pull')) {
+    $value['twitterfield_twitter_pull'] = array(
+      'label' => t('Twitter Pull'),
+      'field types' => array('text'),
+    );
+  }
+
+  return $value;
 }
 /**
  * Implements hook_field_formatter_view().
@@ -219,6 +228,15 @@ function twitterfield_field_formatter_view($entity_type, $entity, $field, $insta
 
           $element[$delta] = array(
             '#markup' => theme('twitter_widget', array('type' => $type, 'value' => $value, 'title' => $title, 'subject' => $subject)),
+          );
+        }
+      }
+      break;
+    case 'twitterfield_twitter_pull':
+      foreach ($items as $delta => $item) {
+        if ($item['safe_value']) {
+          $element[$delta] = array(
+            '#markup' => twitter_pull_render($item['safe_value'], $item['safe_value']),
           );
         }
       }
