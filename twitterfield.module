@@ -219,14 +219,14 @@ function twitterfield_field_formatter_settings_summary($field, $instance, $view_
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
 
-  $summary = '';
+  $summary = array();
 
   if ($display['type'] == 'twitterfield_twitter_pull') {
-    $summary .= t('Items to display') . ': ' . $settings['items'] . '<br>';
-    $summary .= t('Title') . ': ' . (empty($settings['title']) ? '<em>default</em>' : check_plain($settings['title']));
+    $summary[] = t('Items to display') . ': ' . $settings['items'];
+    $summary[] = t('Title') . ': ' . (empty($settings['title']) ? '<em>default</em>' : check_plain($settings['title']));
   }
 
-  return $summary;
+  return implode('<br />', $summary);
 }
 
 /**
