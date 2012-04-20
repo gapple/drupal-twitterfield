@@ -1,5 +1,5 @@
 name = Twitter Field
-description = "A Field Formatter for text fields to display a Twitter Widget"
+description = "A Field Widget and Formatters for Text fields to store and display Twitter items."
 core = 7.x
 
 dependencies[] = text (>=7.8)
