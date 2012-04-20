@@ -1,5 +1,5 @@
 name = Twitter Field
-description = CCK field widget to store Twitter usernames, lists, hashtags, or searches
+description = CCK widget and formatters for Text fields to store and display Twitter items.
 dependencies[] = content
 package = CCK
 core = 6.x
